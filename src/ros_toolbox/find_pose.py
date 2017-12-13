@@ -1,20 +1,41 @@
 #!/usr/bin/env python
+
+import sys
 import rospy
 import tf2_ros
 import tf2_geometry_msgs
 from tf2_geometry_msgs import PoseStamped
 
-print "============ Starting"
-rospy.init_node('move_group_python_interface_tutorial',
-                anonymous=True)
+default_parent = "world"
+default_child = "eef"
 
-tf_buffer = tf2_ros.Buffer(rospy.Duration(100.0)) #tf buffer length
-tf_listener = tf2_ros.TransformListener(tf_buffer)           
+if len(sys.argv) < 2:
+  print('Using default values for parent and child frame: "%s" and "%s"' % (default_parent, default_child))
+  parent = default_parent
+  child = default_child
+elif len(sys.argv) == 2:
+  print('Using default value for parent frame: %s"' % default_parent)
+  parent = default_parent
+  child = sys.argv[1]
+elif len(sys.argv) == 3:
+  parent = sys.argv[1]
+  child = sys.argv[2]
+else:
+  print('Too many arguments. Usage:')
+  print(' - find_pose.py')
+  print('     uses default values: parent="%s", child="%s"' % (default_parent, default_child))
+  print(' - find_pose.py child_frame')
+  print('     uses default value: parent="%s"' % (default_parent))
+  print(' - find_pose.py parent_frame child_frame')
+  exit()
 
+print "Setting up..."
+rospy.init_node('find_pose', anonymous=True)
+
+tf_buffer = tf2_ros.Buffer(rospy.Duration(30.0))
+tf_listener = tf2_ros.TransformListener(tf_buffer)
 rospy.sleep(5.0)
 
-transform2 = tf_buffer.lookup_transform("world",
-	 								   "eef",
-                                       rospy.Time(0), #get the tf at first available time
-                                       rospy.Duration(1.0)) #wait for 1 second
-print "======== final pose: %s" % transform2
+transform = tf_buffer.lookup_transform(parent, child, rospy.Time(0), rospy.Duration(1.0))
+print "====================="
+print "Pose of %s with respect to %s:\n%s" % (parent, child, transform)
