@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+
+# Jog the Kinova arm
+
 from urdf_parser_py.urdf import URDF
 from pykdl_utils.kdl_kinematics import KDLKinematics
 
@@ -46,15 +50,18 @@ while not rospy.is_shutdown():
   # i.e. rz will rotate the robot's eef around the global z axis, but in
   # place rather than rotating around the base of the arm.
   # Not sure if that makes much sense but there you have it.
-  # v = [0, 0, 1, 0.0, 0, 0.0]
+  #
+  # I believe the linear units are in centimeters/s.
+  v = [0, -10, 0, 0.0, 0, 0.0]
 
   # move in a circle
-  eef_pos = kdl_kin.forward(q)[:3, -1]
-  target = [0, -0.3, 0.5, math.pi / 2, math.pi / 2, math.pi / 2]
-  speed = 1
-  v = (target - eef_pos) * speed
+  # eef_pos = kdl_kin.forward(q)[:3, -1]
+  # target = [0, -0.3, 0.5, math.pi / 2, math.pi / 2, math.pi / 2]
+  # speed = 1
+  # v = (target - eef_pos) * speed
   # v = -delta_eef
   # v += -dist_from_start[:3, -1]
+
   jv = J_inv.dot(v)
 
   # jv = -delta_eef
